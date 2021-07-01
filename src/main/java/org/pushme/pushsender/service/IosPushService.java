@@ -137,12 +137,13 @@ public class IosPushService {
     private ApnsClient initClient(Message message, Map<Boolean/*dev*/, ApnsClient> appClientMap)
             throws PushServiceConfigurationException, ApnsClientInitializationException {
         IosPushConfig config = getConfig(message.getAppName());
+        InputStream inputStream = null;
         try {
             String apnsHost = message.isDev() ?
                     ApnsClientBuilder.DEVELOPMENT_APNS_HOST :
                     ApnsClientBuilder.PRODUCTION_APNS_HOST;
 
-            InputStream inputStream = FileUtils.getInstance().getFileInputStream(config.getCertPath(),
+            inputStream = FileUtils.getInstance().getFileInputStream(config.getCertPath(),
                     message.isDev() ? config.getDevCertName() : config.getCertName());
             ApnsClient client = new ApnsClientBuilder()
                     .setClientCredentials(inputStream, config.getCertPassword())
@@ -161,6 +162,15 @@ public class IosPushService {
                     config.getAppName(), config.getCertPath(), config.getCertPath(), config.getDevCertName());
             log.error(errorMessage);
             throw new ApnsClientInitializationException(errorMessage, throwable);
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (Throwable throwable) {
+                log.error("Can not close input stream. " + throwable.getMessage());
+                log.info("Can not close input stream. " + throwable.getMessage(), throwable);
+            }
         }
     }
 
