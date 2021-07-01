@@ -12,6 +12,8 @@ import org.pushme.pushsender.service.AndroidPushService;
 import org.pushme.pushsender.service.HuaweiPushService;
 import org.pushme.pushsender.service.IosPushService;
 
+import java.util.Collection;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Hrayr
@@ -32,6 +34,18 @@ public class Push {
 
     public static PushBuilder create() {
         return new PushBuilder();
+    }
+
+    public void send(Collection<Message> messages) throws PushServiceConfigurationException, ApnsClientInitializationException {
+        for (Message message : messages) {
+            send(message);
+        }
+    }
+
+    public void send(Message ... messages) throws PushServiceConfigurationException, ApnsClientInitializationException {
+        for (Message message : messages) {
+            send(message);
+        }
     }
 
     public void send(Message message) throws PushServiceConfigurationException, ApnsClientInitializationException {
