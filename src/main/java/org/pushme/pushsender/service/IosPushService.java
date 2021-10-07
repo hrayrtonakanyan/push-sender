@@ -46,6 +46,10 @@ public class IosPushService {
     }
 
     public void send(Message message) throws PushServiceConfigurationException, ApnsClientInitializationException {
+        if (isMessageInvalid(message)) {
+            PushResponseManager.getInstance().fireEvent(message, true);
+            return;
+        }
         getClient(message)
                 .sendNotification(createNotification(message))
                 .whenComplete((response, cause) -> {
@@ -75,6 +79,13 @@ public class IosPushService {
                 client.close();
             }
         }
+    }
+
+    private boolean isMessageInvalid(Message message) {
+        return message == null ||
+                message.getUserIdentifier() == null ||
+                (!message.isVoip() && message.getPushToken() == null) ||
+                (message.isVoip() && message.getVoipPushToken() == null);
     }
 
     private ApnsClient getClient(Message message) throws PushServiceConfigurationException, ApnsClientInitializationException {
