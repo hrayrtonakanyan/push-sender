@@ -29,9 +29,9 @@ public class PushResponseManager {
         pushResponseListenerList.add(pushResponseListener);
     }
 
-    public void fireEvent(Message message, boolean isValid) {
+    public void fireEvent(Message message, boolean isTokenValid, String rejectionReason) {
         for (PushResponseListener pushResponseListener : pushResponseListenerList) {
-            pushResponseListener.receiveDevice(message, isValid);
+            pushResponseListener.receiveDevice(message, isTokenValid, rejectionReason);
         }
     }
 }

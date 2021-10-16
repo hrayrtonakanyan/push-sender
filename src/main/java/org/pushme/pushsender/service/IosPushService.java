@@ -47,7 +47,7 @@ public class IosPushService {
 
     public void send(Message message) throws PushServiceConfigurationException, ApnsClientInitializationException {
         if (isMessageInvalid(message)) {
-            PushResponseManager.getInstance().fireEvent(message, true);
+            PushResponseManager.getInstance().fireEvent(message, true, null);
             return;
         }
         getClient(message)
@@ -57,19 +57,20 @@ public class IosPushService {
                         log.error("Response does not exist. " + cause.getMessage(), cause);
                         return;
                     }
-                    boolean isValid = true;
+                    boolean isTokenValid = true;
                     if (response.isAccepted()) {
                         log.info("[ACCEPTED][{}]", message.getUserIdentifier());
                     } else {
                         log.error("[REJECTED - {}][{}] {}", response.getRejectionReason(), message.getUserIdentifier(), message.toString());
-                        if ("Unregistered".equalsIgnoreCase(response.getRejectionReason())) {
-                            isValid = false;
+                        if ("Unregistered".equalsIgnoreCase(response.getRejectionReason()) ||
+                                "BadDeviceToken".equalsIgnoreCase(response.getRejectionReason())) {
+                            isTokenValid = false;
                         }
                         if (response.getTokenInvalidationTimestamp().isPresent()) {
                             log.error("[TOKEN_INVALIDATION_TIMESTAMP][{}] {}", message.getUserIdentifier(), response.getTokenInvalidationTimestamp());
                         }
                     }
-                    PushResponseManager.getInstance().fireEvent(message, isValid);
+                    PushResponseManager.getInstance().fireEvent(message, isTokenValid, response.getRejectionReason());
                 });
     }
 

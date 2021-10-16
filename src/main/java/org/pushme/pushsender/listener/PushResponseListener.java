@@ -9,5 +9,5 @@ import org.pushme.pushsender.model.Message;
  * Time: 15:05.
  */
 public interface PushResponseListener {
-    void receiveDevice(Message message, boolean isValid);
+    void receiveDevice(Message message, boolean isTokenValid, String rejectionReason);
 }
